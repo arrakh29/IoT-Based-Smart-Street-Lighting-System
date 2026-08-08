@@ -1,0 +1,105 @@
+#include <WiFi.h>
+#include <FirebaseESP32.h>
+
+// Ganti dengan kredensial WiFi Anda
+#define WIFI_SSID "inpo"
+#define WIFI_PASSWORD "miskinbanget"
+
+// Ganti dengan detail Firebase Anda
+#define FIREBASE_HOST "https://projek-94e51-default-rtdb.asia-southeast1.firebasedatabase.app/"
+#define FIREBASE_AUTH "AIzaSyCOsCde0MA2SaulZiZ12IVjig1qL7geXgo"
+
+// Tentukan pin untuk sensor IR dan LDR
+#define IR_SENSOR_PIN 13
+#define LDR_SENSOR_PIN 12
+#define LED_PIN 25
+
+// Objek Firebase
+FirebaseData firebaseData;
+FirebaseAuth auth;
+FirebaseConfig config;
+
+// Variabel untuk menyimpan status sensor
+int irValue = 0;
+int ldrValue = 0;
+
+// Nilai PWM untuk mengatur kecerahan LED
+const int dimBrightness = 64;   // LED redup
+const int fullBrightness = 255; // LED terang
+
+void setup() {
+  Serial.begin(115200);
+  
+  // Menginisialisasi pin
+  pinMode(IR_SENSOR_PIN, INPUT);
+  pinMode(LDR_SENSOR_PIN, INPUT);
+  pinMode(LED_PIN, OUTPUT);
+  
+  // Menghubungkan ke WiFi
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("Connecting to Wi-Fi");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(1000);
+  }
+  Serial.println();
+  Serial.print("Connected to Wi-Fi, IP address: ");
+  Serial.println(WiFi.localIP());
+
+  // Menghubungkan ke Firebase
+  config.host = FIREBASE_HOST;
+  config.signer.tokens.legacy_token = FIREBASE_AUTH;
+  
+  Firebase.begin(&config, &auth);
+  Firebase.reconnectWiFi(true);
+  Serial.println("Connected to Firebase");
+}
+
+void loop() {
+  // Membaca nilai dari sensor IR dan LDR
+  irValue = digitalRead(IR_SENSOR_PIN);
+  ldrValue = digitalRead(LDR_SENSOR_PIN);
+
+  // Menentukan apakah siang atau malam hari berdasarkan nilai LDR
+  bool isDay = ldrValue == LOW;
+
+  if (isDay) {
+    // Siang hari, LED mati
+    analogWrite(LED_PIN, 0); // Mematikan LED
+
+    // Mengirim data ke Firebase
+    if (Firebase.setInt(firebaseData, "/carDetected", 0)) {
+      Serial.println("Data sent to Firebase (Daytime)");
+    } else {
+      Serial.print("Failed to send data: ");
+      Serial.println(firebaseData.errorReason());
+    }
+  } else {
+    // Malam hari
+    if (irValue == LOW) {
+      // Tidak ada mobil terdeteksi, LED terang
+      analogWrite(LED_PIN, fullBrightness);
+
+      // Mengirim data ke Firebase
+      if (Firebase.setInt(firebaseData, "/carDetected", 1)) {
+        Serial.println("Data sent to Firebase (Car Detected)");
+      } else {
+        Serial.print("Failed to send data: ");
+        Serial.println(firebaseData.errorReason());
+      }
+    } else {
+      // Mobil terdeteksi, LED redup
+      analogWrite(LED_PIN, dimBrightness);
+
+      // Mengirim data ke Firebase
+      if (Firebase.setInt(firebaseData, "/carDetected", 0)) {
+        Serial.println("Data sent to Firebase (No Car Detected)");
+      } else {
+        Serial.print("Failed to send data: ");
+        Serial.println(firebaseData.errorReason());
+      }
+    }
+  }
+
+  delay(1000); // Delay untuk mengurangi frekuensi pembacaan
+}
