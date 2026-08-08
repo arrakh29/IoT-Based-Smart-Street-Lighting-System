@@ -71,7 +71,7 @@ The system consists of two ESP32 boards:
 
 > Overall architecture of the IoT-based smart street lighting system.
 
-*(Insert image here)*
+![System Architecture](images/system-architecture.png)
 
 ---
 
@@ -79,7 +79,7 @@ The system consists of two ESP32 boards:
 
 > Wiring diagram of the ESP32, LDR, IR sensors, and LEDs.
 
-*(Insert image here)*
+![Hardware Circuit](images/circuit-diagram.png)
 
 ---
 
@@ -87,7 +87,7 @@ The system consists of two ESP32 boards:
 
 > Physical implementation of the smart street lighting prototype.
 
-*(Insert image here)*
+![Hardware Prototype](images/prototype.jpg)
 
 ---
 
@@ -95,7 +95,7 @@ The system consists of two ESP32 boards:
 
 > Real-time data visualization using ThingSpeak.
 
-*(Insert image here)*
+![ThingSpeak Dashboard](images/thingspeak-dashboard.png)
 
 ---
 
@@ -103,7 +103,7 @@ The system consists of two ESP32 boards:
 
 > Automatic notification generated whenever the system status changes.
 
-*(Insert image here)*
+![Telegram Notification](images/telegram-notification.png)
 
 ---
 
@@ -114,15 +114,3 @@ The system consists of two ESP32 boards:
 - Develop a web dashboard for remote management.
 - Add OTA (Over-the-Air) firmware updates.
 - Improve scalability for multiple street lighting nodes.
-
----
-
-## Author
-
-**Arif Rakhmat Mujahidin**
-
-Computer Engineering Student  
-Politeknik Elektronika Negeri Surabaya (PENS)
-
-LinkedIn: https://www.linkedin.com/in/your-profile  
-GitHub: https://github.com/arrakh29
